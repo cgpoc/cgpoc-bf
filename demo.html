@@ -112,12 +112,15 @@
                             var conversationArray = _.last(obj.messages,2);
                             var sendMessage = _.values(_.pick(conversationArray[0],'text'));
                             var receivedMessage = _.values(_.pick(conversationArray[1],'text'));
+                            var id = _.values(_.pick(conversationArray[1],'id'))
+                            var idArray = id[0].split('|');
 
                             //新たなオブジェクトの作成
                             var pocObject = {};
                             pocObject.Msg = sendMessage;
                             pocObject.Text = receivedMessage;
-                            pocObject.MsgId = "";
+                            pocObject.ConversationId = idArray[0]; 
+                            pocObject.MsgId = idArray[1];
                             pocObject.DestStatus = "showAnswer"
                             console.log(JSON.stringify(pocObject));
                             $("#textareaForPoC").val(JSON.stringify(pocObject));
