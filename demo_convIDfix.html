@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<html>
+
+<head>
+    <title>jQueryでBotと会話 Demo</title>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script>
+        var talkWithBot = (function () {
+            return {
+
+                // Plase set your secretKey
+                directLineSecret: "Npb7I4snl3Y.cwA.RHE.Cjo7g-ZvhvaIwjshRITkWrgGpk526qBFlyditwBhwtM",
+
+                convId: null,
+                watermark: null,
+
+                // ▼カンバセーションIDを作成
+                makeConvId: function () {
+
+                    console.log("test");
+
+                    return $.ajax({
+                        url: "https://directline.botframework.com/api/conversations",
+                        type: "POST",
+                        crossDomain: true,
+                        contentType: "application/json",
+                        cache: false,
+                        headers: {
+                            Authorization: "Botconnector " + this.directLineSecret
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            console.log(XMLHttpRequest);
+                            console.log(textStatus);
+                            console.log(errorThrown);
+                        }
+                    });
+
+                },
+
+                // ▼メッセージを送信
+                sendMessage: function (convId, msg) {
+
+                    $('#input').val("送信中...");
+
+                    var user = "user_" + convId;
+
+                    $.ajax({
+                        method: "POST",
+                        contentType: "application/json",
+                        headers: {
+                            Authorization: "Botconnector " + this.directLineSecret
+                        },
+                        url: 'https://directline.botframework.com/api/conversations/' + convId + '/messages',
+                        data: JSON.stringify({
+                            "text": msg, // 送信するメッセージ
+                            "from": user // 同じユーザーからのメッセージであることを認識させるために、fromを入れる
+                        }),
+                        success: function (obj) {
+                            alert("talkWithBot:メッセージを送りました！");
+                            $('#input').val("");
+                        }
+                    });
+
+                },
+
+                // ▼メッセージを取得する
+                getMessage: function (convId, watermark) {
+
+                    var url;
+
+                    // ウォーターマークの有無により、URLの分岐
+                    if (watermark) {
+                        url = 'https://directline.botframework.com/api/conversations/' + convId + '/messages?watermark=' + watermark;
+                    } else {
+                        url = 'https://directline.botframework.com/api/conversations/' + convId + '/messages';
+                    }
+
+                    return $.ajax({
+                        method: "GET",
+                        contentType: "application/json",
+                        headers: {
+                            Authorization: "Botconnector " + this.directLineSecret
+                        },
+                        url: url,
+                        success: function (obj) {
+
+                            // textareに、結果を出力
+                            $("#textarea").val(JSON.stringify(obj.messages));
+
+                            // watermarkの更新
+                            talkWithBot.watermark = obj.watermark;
+
+                            //クッキーにも保存(30分間)
+                            var date = new Date();
+                            date.setTime(date.getTime() + (30 * 60 * 1000));
+                            $.cookie("watermark", obj.watermark, {
+                                expires: date
+                            });
+
+                        }
+                    });
+                },
+                // 初期動作 (カンバセーションIDを用意する)
+                init: function () {
+
+                        // クッキーにwatermarkがあれば、それを再利用
+                        if ($.cookie("watermark")) {
+                            talkWithBot.watermark = $.cookie("watermark");
+                        }
+
+                            //ここに別で取得したconversationIDを記述してください
+                            talkWithBot.convId = "4yv56mT2ByG6b6FPWTzIG3";
+
+                            // カンバセーションIDを表示、準備完了！
+                            $("#convId").text(talkWithBot.convId + " 準備OK!");
+
+
+
+                        
+
+                    }
+
+            };
+
+        })();
+
+        $(function () {
+            talkWithBot.init();
+        });
+    </script>
+
+    <!--********************************************-->
+
+    <ssection>
+        <h2>DirectLine TEST</h2>
+        Conversation ID固定向けHTML
+        <table>
+            <tr>
+                <th>conversationId</th>
+                <td id="convId"></td>
+            </tr>
+        </table>
+
+        <div style="margin:20px 0;">
+            <form action="javascript: talkWithBot.sendMessage( talkWithBot.convId, $('#input').val() );">
+                <input type="text" id="input" required>
+                <button>メッセージ送信</button>
+            </form>
+        </div>
+        <div style="margin:20px 0;">
+            <button type="button" onclick="javascript: talkWithBot.getMessage( talkWithBot.convId )">メッセージ取得</button>
+        </div>
+        <div style="margin:20px 0;">
+            <button type="button" onclick="javascript: talkWithBot.getMessage( talkWithBot.convId, talkWithBot.watermark )">新着メッセージのみ取得 (watermarkを付けて取得)</button>
+        </div>
+        <textarea id="textarea" cols="100" rows="30" placeholder="この欄に、取得したメッセージがJSON形式で表示されます。"></textarea>
+    </ssection>
+
+    <!--********************************************-->
+
+    
+</body>
+
+</html>
