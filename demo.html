@@ -120,6 +120,11 @@
                             pocObject.MsgId = "";
                             pocObject.DestStatus = "showAnswer"
                             console.log(JSON.stringify(pocObject));
+                            $("#textareaForPoC").val(JSON.stringify(pocObject));
+
+
+
+
 
                         }
                     });
@@ -202,6 +207,7 @@
             <button type="button" onclick="javascript: talkWithBot.getMessage( talkWithBot.convId, talkWithBot.watermark )">新着メッセージのみ取得 (watermarkを付けて取得)</button>
         </div>
         <textarea id="textarea" cols="100" rows="30" placeholder="この欄に、取得したメッセージがJSON形式で表示されます。"></textarea>
+        <textarea id="textareaForPoC" cols="100" rows="30" placeholder="この欄に、取得したメッセージがPOC向けのJSON形式で表示されます。"></textarea>
     </ssection>
 
     <!--********************************************-->
