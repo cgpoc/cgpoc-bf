@@ -117,8 +117,8 @@
 
                             //新たなオブジェクトの作成
                             var pocObject = {};
-                            pocObject.Msg = sendMessage;
-                            pocObject.Text = receivedMessage;
+                            pocObject.Msg = sendMessage[0];
+                            pocObject.Text = receivedMessage[0];
                             pocObject.ConversationId = idArray[0]; 
                             pocObject.MsgId = idArray[1];
                             pocObject.DestStatus = "showAnswer"
