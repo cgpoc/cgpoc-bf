@@ -11,6 +11,7 @@
 
     <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
     <script>
         var talkWithBot = (function () {
             return {
@@ -65,6 +66,7 @@
                         success: function (obj) {
                             alert("talkWithBot:メッセージを送りました！");
                             $('#input').val("");
+                            
                         }
                     });
 
@@ -96,6 +98,7 @@
 
                             // watermarkの更新
                             talkWithBot.watermark = obj.watermark;
+                            console.log(talkWithBot.watermark);
 
                             //クッキーにも保存(30分間)
                             var date = new Date();
@@ -103,6 +106,20 @@
                             $.cookie("watermark", obj.watermark, {
                                 expires: date
                             });
+
+
+                            //回答された会話ログを全部取得して、最後の２つの情報を取得する
+                            var conversationArray = _.last(obj.messages,2);
+                            var sendMessage = _.values(_.pick(conversationArray[0],'text'));
+                            var receivedMessage = _.values(_.pick(conversationArray[1],'text'));
+
+                            //新たなオブジェクトの作成
+                            var pocObject = {};
+                            pocObject.Msg = sendMessage;
+                            pocObject.Text = receivedMessage;
+                            pocObject.MsgId = "";
+                            pocObject.DestStatus = "showAnswer"
+                            console.log(JSON.stringify(pocObject));
 
                         }
                     });
